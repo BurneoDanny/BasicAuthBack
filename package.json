@@ -2,19 +2,27 @@
   "name": "basicauthback",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
+    "start": "node ./bin/www",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "bcrypt": "^5.1.1",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
+    "crypto-js": "^4.2.0",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "morgan": "^1.10.0",
     "mysql2": "^3.12.0",
-    "sequelize": "^6.37.5"
+    "nodemailer": "^6.9.16",
+    "sequelize": "^6.37.5",
+    "sequelize-auto": "^0.8.8",
+    "sequelize-cli": "^6.6.2"
   }
 }

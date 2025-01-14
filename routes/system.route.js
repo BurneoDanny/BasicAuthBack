@@ -3,12 +3,13 @@ var router = express.Router();
 var SystemsController = require('../controllers/systemController.js');
 const { verifyJwt } = require('../controllers/systemController.js');
 var EmailService = require('../utils/emailService.js');
+const { csrfProtection } = require('../utils/csrfMiddleware.js');
 
 router.post("/login", SystemsController.login);
 
 router.post("/register", SystemsController.register);
 
-router.post("/logout", verifyJwt, SystemsController.logout);
+router.post("/logout", verifyJwt, csrfProtection,  SystemsController.logout);
 
 router.post("/forgotPassword", SystemsController.forgotPassword);
 

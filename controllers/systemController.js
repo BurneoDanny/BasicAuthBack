@@ -8,11 +8,12 @@ const { generateCSRFToken, clearCSRFToken } = require("../utils/csrfSecurity");
 const { sendVerificationEmail, forgotPasswordTemplate, verifyTemplate } = require("../utils/emailService");
 
 const verifyJwt = function (req, res, next) {
-    const authHeader =
-        req.body.token ||
-        (req.headers.authorization && req.headers.authorization.split(" ")[1]);
-    if (authHeader) {
-        jwt.verify(authHeader, process.env.JWT_SECRET, (err, user) => {
+    // const authHeader =
+    //     req.body.token ||
+    //     (req.headers.authorization && req.headers.authorization.split(" ")[1]);
+        const token = req.cookies.accessToken;
+    if (token) {
+        jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
             if (err) {
                 return res.status(403).json("Token is not valid");
             }
@@ -28,7 +29,6 @@ const verifyJwt = function (req, res, next) {
 const refreshJwt = async (req, res) => {
     try {
         const refreshToken = req.body.refreshToken;
-
         if (!refreshToken) return res.status(401).json("¡No estás autenticado!");
 
         jwt.verify(
@@ -139,15 +139,16 @@ const login = async function (req, res) {
             maxAge: process.env.REFRESH_TOKEN_EXPIRES_IN_MILISECONDS,
         });
 
-        res.cookie('csrfToken', csrfToken, {
+        res.cookie('XSRF-TOKEN', csrfToken, {
             httpOnly: false,
-            secure: true,
+            secure: false,
             sameSite: 'strict',
         });
 
         return res.status(202).json({
             message: "Inicio de sesión exitoso",
             email: user.email,
+            username: user.username,
             id: user.id,
         });
     } catch (err) {
@@ -173,9 +174,13 @@ const register = async function (req, res) {
         const encryptedTempPassword = CryptoJS.AES.encrypt(password, process.env.REACT_APP_SECRET_KEY_AES_PASSWORD).toString(); // requerimiento
         const hashedPassword = await bcrypt.hash(password, 10);
         const emailToken = jwt.sign({ email }, process.env.EMAIL_SECRET, { expiresIn: '2h' });
+        const encryptedUsername = CryptoJS.AES.encrypt(
+                username,
+                process.env.REACT_APP_SECRET_KEY_AES_PASSWORD
+            ).toString(); // requerimiento
         const newUser = await UserModel.create({
             email,
-            username,
+            username: encryptedUsername,
             password: hashedPassword,
             tempPassword: encryptedTempPassword,
             emailToken,
@@ -228,9 +233,9 @@ const logout = async function (req, res) {
             sameSite: 'strict',
         });
 
-        res.cookie('csrfToken', '', {
+        res.cookie('XSRF-TOKEN', '', {
             httpOnly: false,
-            secure: true,
+            secure: false,
             sameSite: 'strict',
             maxAge: 0,
         });

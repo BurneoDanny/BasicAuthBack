@@ -23,10 +23,10 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Routes setup
 var systemRouter = require('./routes/system.route');
-//var userRouter = require('./routes/user.route');
+var userRouter = require('./routes/user.route');
 
 app.use('/system', systemRouter);
-//app.use('/user', userRouter);
+app.use('/user', userRouter);
 
 
 // EL inicio del servidor se lo gestiona en wwww.
